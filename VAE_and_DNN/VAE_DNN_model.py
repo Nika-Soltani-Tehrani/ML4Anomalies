@@ -1,5 +1,6 @@
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
+import keras
 import numpy as np
 from tensorflow.python.ops import math_ops
 
@@ -183,7 +184,7 @@ class VariationalAutoEncoder(tf.keras.Model):
         # self._set_inputs(inputs)
         z_mean, z_log_var, z = self.encoder(inputs)
         reconstructed = self.decoder(z)
-        mse = tf.keras.losses.MeanSquaredError()
+        mse = keras.losses.MeanSquaredError()
         mseLoss = mse(inputs, reconstructed)*0.01 #was 1. by deafult        
         self.add_loss(mseLoss) 
         # Add KL divergence regularization loss.

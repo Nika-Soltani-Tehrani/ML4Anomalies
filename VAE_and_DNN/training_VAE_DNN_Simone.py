@@ -6,13 +6,14 @@ import sys
 import numpy
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
+import keras
 
 
 #taking the model
 #from VAE_model_extended_moreDKL import *
 from VAE_testDK_Reco_Loss import *
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 import ROOT
 ROOT.ROOT.EnableImplicitMT()
@@ -37,14 +38,15 @@ dfBSM = dfBSM.Filter(kinematicFilter)
 
 np_SM = dfSM.AsNumpy()
 wSM = dfSM.AsNumpy(["w"])
-npd =pd.DataFrame.from_dict(np_SM)
+npd = pd.DataFrame.from_dict(np_SM)
 npd.drop(['w','phil1','phil2',"phij1","phij2"],axis='columns', inplace=True)
 wpdSM = pd.DataFrame.from_dict(wSM)
 npd.info()
 
+# Take all columns og dfBSM because of using RDateFrame.AsNumpy() without any filter
 np_BSM = dfBSM.AsNumpy()
 wBSM = dfBSM.AsNumpy(["w"])
-npd_BSM =pd.DataFrame.from_dict(np_BSM)
+npd_BSM = pd.DataFrame.from_dict(np_BSM)
 npd_BSM.drop(['w','phil1','phil2',"phij1","phij2"],axis='columns', inplace=True)
 wpdBSM = pd.DataFrame.from_dict(wBSM)
 
@@ -54,10 +56,10 @@ npd_BSM = npd_BSM.head(nEntries)
 wpdSM = wpdSM.head(nEntries)
 wpdBSM = wpdBSM.head(nEntries)
 #to be done for all the pt and mass and met variables
-for vars in ['met', 'mjj', 'mll',  'ptj1', 'ptj2', 'ptl1',
+for var in ['met', 'mjj', 'mll',  'ptj1', 'ptj2', 'ptl1',
        'ptl2', 'ptll',"Ej1","Ej2","El1","El2"]:
-    npd[vars] = npd[vars].apply(numpy.log10)
-    npd_BSM[vars] = npd_BSM[vars].apply(numpy.log10)
+    npd[var] = npd[var].apply(numpy.log10)
+    npd_BSM[var] = npd_BSM[var].apply(numpy.log10)
 
 Y_true = np.full(npd.shape[0],0)
 Y_true_BSM = np.full(npd_BSM.shape[0],1)
@@ -107,8 +109,9 @@ encoderDecoder =  EncoderDecoder(original_dim,intermediate_dim,input_dim,half_in
 reco = encoderDecoder.predict(X_test)
 #encoder = LatentSpace(intermediate_dim,input_dim,half_input,latent_dim)
 #z = encoder.predict(X_train)
-tf.keras.models.save_model(encoderDecoder,'encoderDecoder_newModelUsingKL_Reco_Loss_newWayToAddUpSamples_'+nameExtenstion)
-tf.keras.models.save_model(vae,'vae_newModelUsingKL_Reco_Loss_newWayToAddUpSamples_'+nameExtenstion)
+
+keras.models.save_model(encoderDecoder,'encoderDecoder_newModelUsingKL_Reco_Loss_newWayToAddUpSamples_'+nameExtenstion)
+keras.models.save_model(vae,'vae_newModelUsingKL_Reco_Loss_newWayToAddUpSamples_'+nameExtenstion)
 #numpy.savetxt("lossVAE_test_newModelDimenstions_MinMaxScaler_"+nameExtenstion+".csv",hist.history["loss"],delimiter=",")
 #vae=tf.keras.models.load_model('vae_test_newModelUsingLatentSpace_'+nameExtenstion)
 
