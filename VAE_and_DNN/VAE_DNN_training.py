@@ -6,8 +6,8 @@ import sys
 import numpy
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras import layers
+from keras.callbacks import EarlyStopping
+from keras import layers
 
 
 #taking the model
@@ -25,7 +25,7 @@ import ROOT
 
 path_to_ntuple = "../"
 
-
+# "../new_data"
 #
 # variable from the nutple
 #
@@ -33,13 +33,13 @@ pd_variables = ['deltaetajj', 'deltaphijj', 'etaj1', 'etaj2', 'etal1', 'etal2',
        'met', 'mjj', 'mll',  'ptj1', 'ptj2', 'ptl1',
        'ptl2', 'ptll']#,'phij1', 'phij2', 'w']
 kinematicFilter = "ptj1 > 30 && ptj2 >30 && deltaetajj>2 && mjj>200"
-dfSM = ROOT.RDataFrame("SSWW_SM",path_to_ntuple+"/ntuple_SSWW_SM.root")
+dfSM = ROOT.RDataFrame("SSWW_SM", path_to_ntuple + "/ntuple_SSWW_SM.root")
 dfSM = dfSM.Filter(kinematicFilter)
 # BSM = QUAD
-dfBSM = ROOT.RDataFrame("SSWW_"+str(oper)+"_QU",path_to_ntuple+"/ntuple_SSWW_"+str(oper)+"_QU.root")
+dfBSM = ROOT.RDataFrame("SSWW_"+str(oper) + "_QU",path_to_ntuple + "/ntuple_SSWW_"+str(oper)+"_QU.root")
 dfBSM = dfBSM.Filter(kinematicFilter)
 # BSM2 = LIN
-dfBSM2 = ROOT.RDataFrame("SSWW_"+str(oper)+"_LI",path_to_ntuple+"/ntuple_SSWW_"+str(oper)+"_LI.root")
+dfBSM2 = ROOT.RDataFrame("SSWW_"+str(oper) + "_LI",path_to_ntuple + "/ntuple_SSWW_"+str(oper)+"_LI.root")
 dfBSM2 = dfBSM2.Filter(kinematicFilter)
 
 np_SM = dfSM.AsNumpy(pd_variables)

@@ -16,10 +16,9 @@ from VAE_testDK_Reco_Loss import *
 import matplotlib.pyplot as plt
 
 import ROOT
-ROOT.ROOT.EnableImplicitMT()
+# ROOT.ROOT.EnableImplicitMT()
 #RDataFrame = ROOT.RDF.Experimental.Distributed.Spark.RDataFrame
  
-
 
 
 #
@@ -39,6 +38,7 @@ dfBSM = dfBSM.Filter(kinematicFilter)
 np_SM = dfSM.AsNumpy()
 wSM = dfSM.AsNumpy(["w"])
 npd = pd.DataFrame.from_dict(np_SM)
+print(npd.head(5))
 npd.drop(['w','phil1','phil2',"phij1","phij2"],axis='columns', inplace=True)
 wpdSM = pd.DataFrame.from_dict(wSM)
 npd.info()

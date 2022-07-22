@@ -6,8 +6,8 @@ import sys
 import numpy
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras import layers
-from tensorflow.keras.callbacks import EarlyStopping
+from keras import layers
+from keras.callbacks import EarlyStopping
 
 #taking the model
 #from VAE_model_extended_moreDKL import *

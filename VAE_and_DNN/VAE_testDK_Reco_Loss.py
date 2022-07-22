@@ -1,9 +1,9 @@
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
 import numpy as np
 from tensorflow.python.ops import math_ops
 
-class sampling(layers.Layer):
+class Sampling(layers.Layer):
     """Uses (z_mean, z_log_var) to sample z, the vector encoding the variables."""
     def call(self, inputs):
         z_mean, z_log_var = inputs
@@ -34,7 +34,7 @@ class Encoder(layers.Layer):
         self.encoder_active_layer5 = layers.LeakyReLU(name="encoder_activ_layer_5")
         self.dense_mean = layers.Dense(latent_dim)
         self.dense_log_var = layers.Dense(latent_dim)
-        self.sampling = sampling()
+        self.sampling = Sampling()
 
     def call(self, inputs):
         xl1 = self.encoder_layer1(inputs)
@@ -157,17 +157,19 @@ class VariationalAutoEncoder(tf.keras.Model):
         super(VariationalAutoEncoder, self).__init__(name=name, **kwargs)
         self.original_dim = original_dim
         self.encoder = Encoder(
-               intermediate_dim=intermediate_dim,
-               input_dim=input_dim,
-               half_input=half_input,
-               latent_dim=latent_dim)
+                                intermediate_dim=intermediate_dim,
+                                input_dim=input_dim,
+                                half_input=half_input,
+                                latent_dim=latent_dim
+                                )
         self.decoder = Decoder(
-           half_input=half_input,
-           input_dim=input_dim,
-           intermediate_dim=intermediate_dim,
-           original_dim=original_dim)   
+                                half_input=half_input,
+                                input_dim=input_dim,
+                                intermediate_dim=intermediate_dim,
+                                original_dim=original_dim
+                                )   
         #self.recoLoss = recoLoss()  
-        self.classifier = classifier()                  
+        self.classifier = classifier()
     def call(self, inputs):
         # self._set_inputs(inputs)
         z_mean, z_log_var, z = self.encoder(inputs)
@@ -177,7 +179,8 @@ class VariationalAutoEncoder(tf.keras.Model):
         self.add_loss(mseLoss) 
         # Add KL divergence regularization loss.
         kl_loss = - 0.5 * tf.reduce_mean(
-            z_log_var - tf.square(z_mean) - tf.exp(z_log_var) + 1)
+                                            z_log_var - tf.square(z_mean) - tf.exp(z_log_var) + 1
+                                            )
         kl_loss= kl_loss/1000000. # was 1000000.
         self.add_loss(kl_loss)  
         recoLoss = math_ops.squared_difference(reconstructed, inputs)
