@@ -172,8 +172,8 @@ class VariationalAutoEncoder(tf.keras.Model):
         self.classifier = classifier()
     def call(self, inputs):
         # self._set_inputs(inputs)
-        z_mean, z_log_var, z = self.encoder(inputs)
-        reconstructed = self.decoder(z)
+        z_mean, z_log_var, z = self.encoder.call(inputs)
+        reconstructed = self.decoder.call(z)
         mse = tf.keras.losses.MeanSquaredError()
         mseLoss = mse(inputs, reconstructed)*1. #was 1. by deafult        
         self.add_loss(mseLoss) 
@@ -184,6 +184,7 @@ class VariationalAutoEncoder(tf.keras.Model):
         kl_loss= kl_loss/1000000. # was 1000000.
         self.add_loss(kl_loss)  
         recoLoss = math_ops.squared_difference(reconstructed, inputs)
+        print(recoLoss)
         recoLoss = tf.keras.backend.mean(recoLoss, axis = -1)
         dim_batch =  reconstructed.get_shape().as_list()[0]   
         #print "\n recoLoss = ", recoLoss 
@@ -194,7 +195,7 @@ class VariationalAutoEncoder(tf.keras.Model):
         #print "\n KLLoss = ", newKLLoss
         #totLoss = tf.stack([recoLoss,newKLLoss],axis=1)
         #print "\n tot Loss ",totLoss                        
-        myOutput = self.classifier(recoLoss)       
+        myOutput = self.classifier.call(recoLoss)       
         #myOutput = self.classifier(totLoss)       
         #myOutput = self.classifier(z)
         return myOutput
