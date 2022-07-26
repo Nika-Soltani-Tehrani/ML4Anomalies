@@ -184,7 +184,6 @@ class VariationalAutoEncoder(tf.keras.Model):
         kl_loss= kl_loss/1000000. # was 1000000.
         self.add_loss(kl_loss)  
         recoLoss = math_ops.squared_difference(reconstructed, inputs)
-        print(recoLoss)
         recoLoss = tf.keras.backend.mean(recoLoss, axis = -1)
         dim_batch =  reconstructed.get_shape().as_list()[0]   
         #print "\n recoLoss = ", recoLoss 
