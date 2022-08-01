@@ -130,16 +130,18 @@ class classifier(layers.Layer):
                **kwargs):
         super(classifier, self).__init__(name=name, **kwargs)        
         self.classifier_layer0 = layers.Dense(50,activation="relu")    #it was 50 before    
-        #self.classifier_layer1 = layers.Dense(50,activation="relu")        
+        self.classifier_layer1 = layers.Dense(50,activation="relu")        
+        self.classifier_layer2 = layers.Dropout(0.2)       
         #self.classifier_layer2 = layers.Dense(10,activation="relu")        
         self.classifier_layer3 = layers.Dense(1,activation='sigmoid')        
         
     def call(self, inputs):
         #print "\n Inputs classifier", inputs
         layer0 = self.classifier_layer0(inputs) 
-        #layer1 = self.classifier_layer1(layer0) 
+        layer1 = self.classifier_layer1(layer0) 
+        layer2 = self.classifier_layer2(layer1)
         #layer2 = self.classifier_layer2(layer1)         
-        output = self.classifier_layer3(layer0)                 
+        output = self.classifier_layer3(layer2)                 
         #print "classifier output = ",output
         return output
 
