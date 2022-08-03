@@ -1,16 +1,16 @@
-from sklearn import datasets
+# from sklearn import datasets
 from sklearn.metrics import roc_curve, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-import numpy
+import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
 
 
 #taking the model
 #from VAE_model_extended_moreDKL import *
-from VAE_testReturnLoss import *
+# from VAE_testReturnLoss import *
 from matplotlib import pyplot as plt
 
 import ROOT
@@ -54,9 +54,9 @@ wpdBSM2 = wpdBSM2.head(nEntries)
 #to be done for all the pt and mass and met variables
 for vars in ['met', 'mjj', 'mll',  'ptj1', 'ptj2', 'ptl1',
        'ptl2', 'ptll']:
-    npd[vars] = npd[vars].apply(numpy.log10)
-    npd_BSM[vars] = npd_BSM[vars].apply(numpy.log10)
-    npd_BSM2[vars] = npd_BSM2[vars].apply(numpy.log10)
+    npd[vars] = npd[vars].apply(np.log10)
+    npd_BSM[vars] = npd_BSM[vars].apply(np.log10)
+    npd_BSM2[vars] = npd_BSM2[vars].apply(np.log10)
 
 Y_true = np.full(nEntries,0)
 Y_true_BSM = np.full(nEntries,1)

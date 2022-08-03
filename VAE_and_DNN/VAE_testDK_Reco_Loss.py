@@ -1,7 +1,9 @@
 import tensorflow as tf
+import keras
 from keras import layers
 import numpy as np
 from tensorflow.python.ops import math_ops
+import math
 
 class Sampling(layers.Layer):
     """Uses (z_mean, z_log_var) to sample z, the vector encoding the variables."""
@@ -10,7 +12,8 @@ class Sampling(layers.Layer):
         batch = tf.shape(z_mean)[0]
         dim = tf.shape(z_mean)[1]
         epsilon = tf.keras.backend.random_normal(shape=(batch, dim))
-        return z_mean + tf.exp(0.5 * z_log_var) * epsilon
+        layer_output = z_mean + tf.exp(0.5 * z_log_var) * epsilon
+        return layer_output
 
 class Encoder(layers.Layer):
     """Maps PD variables to a triplet (z_mean, z_log_var, z)."""
@@ -149,15 +152,18 @@ class VariationalAutoEncoder(tf.keras.Model):
     """Combines the encoder and decoder into an end-to-end model for training."""
 
     def __init__(self,
-               original_dim,               
-               intermediate_dim=50,
-               input_dim=20,
-               half_input=10,
-               latent_dim=5,
-               name='autoencoder',
-               **kwargs):
+                original_dim,               
+                intermediate_dim=50,
+                input_dim=20,
+                half_input=10,
+                latent_dim=5,
+                name='autoencoder',
+                **kwargs):
         super(VariationalAutoEncoder, self).__init__(name=name, **kwargs)
         self.original_dim = original_dim
+        self.gamma = 1000
+        self.beta = 100
+        self.max_capacity = 25
         self.encoder = Encoder(
                                 intermediate_dim=intermediate_dim,
                                 input_dim=input_dim,
@@ -174,17 +180,34 @@ class VariationalAutoEncoder(tf.keras.Model):
         self.classifier = classifier()
     def call(self, inputs):
         # self._set_inputs(inputs)
+        # z = layer_output which is z_mean + tf.exp(0.5 * z_log_var) * epsilon
         z_mean, z_log_var, z = self.encoder.call(inputs)
         reconstructed = self.decoder.call(z)
         mse = tf.keras.losses.MeanSquaredError()
         mseLoss = mse(inputs, reconstructed)*1. #was 1. by deafult        
         self.add_loss(mseLoss) 
         # Add KL divergence regularization loss.
-        kl_loss = - 0.5 * tf.reduce_mean(
-                                            z_log_var - tf.square(z_mean) - tf.exp(z_log_var) + 1
-                                            )
-        kl_loss= kl_loss/1000000. # was 1000000.
-        self.add_loss(kl_loss)  
+        # kl_loss = - 0.5 * tf.reduce_mean(
+        #                                     z_log_var - tf.square(z_mean) - tf.exp(z_log_var) + 1
+        #                                     )
+        # kl_loss= kl_loss/1000000. # was 1000000.
+        
+        # lossss = keras.abs(kl_loss - self.max_capacity)
+        # kl_loss = self.gamma * keras.backend.abs(kl_loss - self.max_capacity)
+        # self.add_loss(losses=[latent_loss], inputs=[layer_inputs])
+        # kl_loss = keras.backend.reshape(kl_loss, [1, 1])
+        # self.add_loss(losses=[kl_loss], inputs=[inputs])  
+
+        kl_loss = -0.5 * (1 + z_log_var
+                            - keras.backend.square(z_mean)
+                            - keras.backend.exp(z_log_var)
+                         )
+        kl_loss = keras.backend.sum(kl_loss, axis=-1) # sum over latent dimension
+        kl_loss = keras.backend.mean(kl_loss, axis=0) # avg over batch
+        # # use beta to force less usage of vector space:
+        kl_loss = self.beta * kl_loss
+        self.add_loss(losses=[kl_loss], inputs=[inputs]) 
+
         recoLoss = math_ops.squared_difference(reconstructed, inputs)
         recoLoss = tf.keras.backend.mean(recoLoss, axis = -1)
         dim_batch =  reconstructed.get_shape().as_list()[0]   
@@ -200,7 +223,7 @@ class VariationalAutoEncoder(tf.keras.Model):
         #myOutput = self.classifier(totLoss)       
         #myOutput = self.classifier(z)
         return myOutput
-
+        
 class LatentSpace(tf.keras.Model):
     """Combines the encoder and decoder into an end-to-end model for training."""
     def __init__(self,
